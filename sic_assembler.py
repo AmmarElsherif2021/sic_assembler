@@ -107,19 +107,36 @@ def fill_Taddress(inst_set):
    
     #assure inst_set values data type
     inst_set=inst_set.astype(str)
-   
+    del inst_set['Format']
     #call symtab:
     symtab=get_symtab(inst_set)
     
     #Add x,TADD columns
     inst_set['x']=inst_set.apply(lambda x:int(bool(re.findall(r",X",x.OPERAND))) , axis=1)
-    
+    inst_set['OPERAND']=inst_set.apply(lambda x: ''.join(re.findall(r"[^,X$]" ,x.OPERAND)) if x.OPERAND != 'INDEX' else x.OPERAND,axis=1 )
     #add TADD columns
     inst_set['TADD']=inst_set.apply(lambda x:0,axis=1)
     
+    for j in range(len(inst_set['OPERAND'])):
+        if inst_set['OPERAND'][j] != 'nan':
+            for i in range(len(symtab['REF'])):
+                if inst_set['OPERAND'][j]==symtab['REF'][i]:
+                    inst_set['TADD'][j]=symtab['LOCCTR'][i]
+            
+        
     return inst_set
 
-        
+#.......................................................................................
+def convertToBinary(inst_set):
+    #assure inst_set values data type
+    inst_set=inst_set.astype(str)
+    
+    inst_set['TADD']=inst_set.apply(lambda x: format(int(x.TADD,16),'015b') if x.TADD!='0' else '0' ,axis=1)
+    
+    inst_set['OPCODEVAL']=inst_set.apply(lambda x: format(int(x.OPCODEVAL,16),'08b') if x.OPCODEVAL!='nan' else 'nan', axis=1)
+    
+    
+    return inst_set    
 """
 #.............................................................................................
 def fixTAddress(inst_set):
@@ -201,3 +218,7 @@ print('symtab >>>>>>>>>>>')
 print(symtab)
 #..................................
 input_set2=fill_Taddress(input_set1)
+print(input_set2)
+#.................................
+input_set3=convertToBinary(input_set2)
+print(input_set3)
