@@ -1,0 +1,238 @@
+{
+    "ADD": {
+        "Format": "3",
+        "OPCODE": "18"
+    },
+    "ADDF": {
+        "Format": "3",
+        "OPCODE": "58"
+    },
+    "ADDR": {
+        "Format": "2",
+        "OPCODE": "90"
+    },
+    "AND": {
+        "Format": "3",
+        "OPCODE": "40"
+    },
+    "CLEAR": {
+        "Format": "2",
+        "OPCODE": "B4"
+    },
+    "COMP": {
+        "Format": "3",
+        "OPCODE": "28"
+    },
+    "COMPF": {
+        "Format": "3",
+        "OPCODE": "88"
+    },
+    "COMPR": {
+        "Format": "2",
+        "OPCODE": "A0"
+    },
+    "DIV": {
+        "Format": "3",
+        "OPCODE": "24"
+    },
+    "DIVF": {
+        "Format": "3",
+        "OPCODE": "64"
+    },
+    "DIVR": {
+        "Format": "2",
+        "OPCODE": "9C"
+    },
+    "FIX": {
+        "Format": "1",
+        "OPCODE": "C4"
+    },
+    "FLOAT": {
+        "Format": "1",
+        "OPCODE": "C0"
+    },
+    "HIO": {
+        "Format": "1",
+        "OPCODE": "F4"
+    },
+    "J": {
+        "Format": "3",
+        "OPCODE": "3C"
+    },
+    "JEQ": {
+        "Format": "3",
+        "OPCODE": "30"
+    },
+    "JGT": {
+        "Format": "3",
+        "OPCODE": "34"
+    },
+    "JLT": {
+        "Format": "3",
+        "OPCODE": "38"
+    },
+    "JSUB": {
+        "Format": "3",
+        "OPCODE": "48"
+    },
+    "LDA": {
+        "Format": "3",
+        "OPCODE": "00"
+    },
+    "LDB": {
+        "Format": "3",
+        "OPCODE": "68"
+    },
+    "LDCH": {
+        "Format": "3",
+        "OPCODE": "50"
+    },
+    "LDF": {
+        "Format": "3",
+        "OPCODE": "70"
+    },
+    "LDL": {
+        "Format": "3",
+        "OPCODE": "08"
+    },
+    "LDS": {
+        "Format": "3",
+        "OPCODE": "6C"
+    },
+    "LDT": {
+        "Format": "3",
+        "OPCODE": "74"
+    },
+    "LDX": {
+        "Format": "3",
+        "OPCODE": "04"
+    },
+    "LPS": {
+        "Format": "3",
+        "OPCODE": "D0"
+    },
+    "MUL": {
+        "Format": "3",
+        "OPCODE": "20"
+    },
+    "MULF": {
+        "Format": "3",
+        "OPCODE": "60"
+    },
+    "MULR": {
+        "Format": "2",
+        "OPCODE": "98"
+    },
+    "NORM": {
+        "Format": "1",
+        "OPCODE": "C8"
+    },
+    "OR": {
+        "Format": "3",
+        "OPCODE": "44"
+    },
+    "RD": {
+        "Format": "3",
+        "OPCODE": "D8"
+    },
+    "RMO": {
+        "Format": "2",
+        "OPCODE": "AC"
+    },
+    "RSUB": {
+        "Format": "3",
+        "OPCODE": "4C"
+    },
+    "SHIFTL": {
+        "Format": "2",
+        "OPCODE": "A4"
+    },
+    "SHIFTR": {
+        "Format": "2",
+        "OPCODE": "A8"
+    },
+    "SIO": {
+        "Format": "1",
+        "OPCODE": "F0"
+    },
+    "SSK": {
+        "Format": "3",
+        "OPCODE": "EC"
+    },
+    "STA": {
+        "Format": "3",
+        "OPCODE": "0C"
+    },
+    "STB": {
+        "Format": "3",
+        "OPCODE": "78"
+    },
+    "STCH": {
+        "Format": "3",
+        "OPCODE": "54"
+    },
+    "STF": {
+        "Format": "3",
+        "OPCODE": "80"
+    },
+    "STI": {
+        "Format": "3",
+        "OPCODE": "D4"
+    },
+    "STL": {
+        "Format": "3",
+        "OPCODE": "14"
+    },
+    "STS": {
+        "Format": "3",
+        "OPCODE": "7C"
+    },
+    "STSW": {
+        "Format": "3",
+        "OPCODE": "E8"
+    },
+    "STT": {
+        "Format": "3",
+        "OPCODE": "84"
+    },
+    "STX": {
+        "Format": "3",
+        "OPCODE": "10"
+    },
+    "SUB": {
+        "Format": "3",
+        "OPCODE": "1C"
+    },
+    "SUBF": {
+        "Format": "3",
+        "OPCODE": "5C"
+    },
+    "SUBR": {
+        "Format": "2",
+        "OPCODE": "94"
+    },
+    "SVC": {
+        "Format": "2",
+        "OPCODE": "B0"
+    },
+    "TD": {
+        "Format": "3",
+        "OPCODE": "E0"
+    },
+    "TIO": {
+        "Format": "1",
+        "OPCODE": "F8"
+    },
+    "TIX": {
+        "Format": "3",
+        "OPCODE": "2C"
+    },
+    "TIXR": {
+        "Format": "2",
+        "OPCODE": "B8"
+    },
+    "WD": {
+        "Format": "3",
+        "OPCODE": "DC"
+    }
+}
