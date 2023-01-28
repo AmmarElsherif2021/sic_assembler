@@ -12,10 +12,14 @@ from ast import literal_eval
 #------------------------------------------------------------------------------
 #read json file: A reference file of SIC/XE instructions:
 
-sic_inst0 = pd.read_json("inst.json")
+sic_inst0 = pd.read_json("inst.json" )
 sic_inst=sic_inst0.transpose()
-#sic_inst=sic_inst.apply(lambda x: int(str(x.OPCODE),16), axis=1)
+
+
+sic_inst.reset_index(inplace=True)
+sic_inst = sic_inst.rename(columns = {'index':'OPCODE'})
 print("\n","Set of SIC instructions reference","\n")
+
 print(sic_inst)
 print('------------------------------------------------------------') 
   
@@ -33,7 +37,7 @@ print(input_set)
 #Function to convert df values to suitable data types
 def convertDataType(df):
     
-    df=df.asType(str)
+    df=df.astype(str)
     return df
 #Merge sicxe_insts and input dataframes and add looctr col.-------------------------------
 
@@ -46,29 +50,44 @@ def createLocctr(inst_set,sic,firstloc=0):
     #create LOCCTR
     inst_set1['LOCCTR']=inst_set1.apply(lambda x: 0 , axis=1)
     inst_set1=inst_set1.astype(str)     
+    
+    
     #fill LOCCTR
     init_loc=hex(0)
     current_loc=init_loc
+    inst_set1['LOCCTR'][0]=init_loc
     locctr=list()
     locctr.append(current_loc)
     i=1
     increment=hex(0)
-    while i<(len(inst_set1['LOCCTR'])-1):
+    while i<(len(inst_set1['LOCCTR'])):
         if inst_set1['OPCODE'][i]=='BYTE':
-            increment=hex(1)
+            if re.findall(r'^C',inst_set1['OPERAND'][i]):
+                digits=re.findall(r"[^C,']",inst_set1['OPERAND'][i])
+                increment=hex(len(digits))
+            else:
+                digits=re.findall(r"[^X,']",inst_set1['OPERAND'][i])
+                increment=hex(int((len(digits)+1)/2))
+            
         elif inst_set1['OPCODE'][i]=='WORD':
             increment=hex(3)
         elif inst_set1['OPCODE'][i]=='RESW':
             increment=hex(3*int(inst_set1['OPERAND'][i]))
         elif inst_set1['OPCODE'][i]=='RESB':
-            pass
+            increment=hex(int(inst_set1['OPERAND'][i]))
         else:
-            pass
-        
+            increment=hex(3)
+        current_loc=hex(int(current_loc,16)+int(increment,16))
+        locctr.append(current_loc)
+        i+=1
+    
+    for i in range(len(locctr)-1):
+        inst_set1['LOCCTR'][i+1]=locctr[i]
+    
     return inst_set1
 
 #.................................................................................
-"""
+
 def get_symtab(inst_set):
     df=pd.DataFrame()
     df=inst_set[['REF','LOCCTR']]
@@ -76,94 +95,32 @@ def get_symtab(inst_set):
     
       
 
-          
-print('\n*************************************** END OF SIC/XE ASSEMBLER PASS 1 ****************************************')
+        
+print('\n************************** END OF SIC/XE ASSEMBLER PASS 1 ****************************************')
  #PASS 2........................................................................................
 
 #.......................................................................................        
 
 
-#Filling n,i,x,p,b,e,disp1,disp2,address columns
+#Filling x,address columns
 def fill_Taddress(inst_set):
-    #for format 1,2 
-    inst_set['R1']=inst_set.apply(lambda row: row.e*0, axis = 1)
-    inst_set['R2']=inst_set.apply(lambda row: row.e*0, axis = 1)
-    inst_set['TADD']=inst_set.apply(lambda row: row.e*0, axis = 1)
-    
+   
+    #assure inst_set values data type
+    inst_set=inst_set.astype(str)
+   
     #call symtab:
     symtab=get_symtab(inst_set)
-    #handle format 3 and 4:
-    operand_switcher={
-        '@':'n',
-        '#':'i',
-        'X':'x',
-        }
     
-    #referances-table 
-    Ref=get_symtab(inst_set)
+    #Add x,TADD columns
+    inst_set['x']=inst_set.apply(lambda x:int(bool(re.findall(r",X",x.OPERAND))) , axis=1)
     
-    #iterate on inst_set and fill '+' col, nixpbe cols, and disp/ADD cols 
-    for i in range(len(inst_set)):
-       
-        #is + found ? then e=1
-        if inst_set['signal'][i]:
-            inst_set['e'][i]=1
-       
-        #adjust nixpbe for flags
-        for sign in operand_switcher:
-            s=operand_switcher[sign]
-            if inst_set['FORMAT'][i] in [3,4]:
-           
-                #handle n,i,x
-                if re.search(sign,str(inst_set['OPERAND'][i])):
-                    inst_set[s][i]=1
-                    inst_set['OPERAND'][i]=inst_set['OPERAND'][i].replace(sign,'').replace(',','')
-            
-            #handle p,b ???  
-            
-        
-        
-                    
-                    
-                
- 
-        #handle simple mode
-        if inst_set['n'][i]==0 and inst_set['i'][i]==0 and inst_set['FORMAT'][i] in [3,4]:
-            inst_set['n'][i]=1
-            inst_set['i'][i]=1
-        
-            
-            
-        # handle format 2 and 1  and fill displacement columns:
-        if inst_set['FORMAT'][i]==2:
-            
-            for op in inst_set['OPERAND'].split(','):
-                operands=inst_set.loc(inst_set['REF']==op)
-                inst_set['R1']=operands[0]
-                if operands[1]:
-                    inst_set['R2']=operands[1]
-        
-        #fill adds for formmats 3 and 4
-        elif inst_set['FORMAT'][i] in [3,4]:
-            operand=str(inst_set['OPERAND'][i])
-            if operand in ['null']:
-                operand=0
-                inst_set['TADD'][i]=0
-            elif operand.isdigit() :
-                inst_set['TADD'][i]=int(str(operand))
-            else:
-                for j in range(len(symtab['REF'])):
-                    if symtab['REF'][j] == operand:
-                        inst_set['TADD'][i]=symtab['LOCCTR'][j]
-    
-    #handle p,b flags for formats 3 and 4
-    
-    
-    
-    
+    #add TADD columns
+    inst_set['TADD']=inst_set.apply(lambda x:0,axis=1)
     
     return inst_set
 
+        
+"""
 #.............................................................................................
 def fixTAddress(inst_set):
     inst_set['OPCODEVAL']=inst_set.apply(lambda row: int(row.OPCODEVAL,16), axis = 1)
@@ -233,29 +190,14 @@ def collectHTE(inst_set):
     
     return inst_set
 
-#.......................................................................................   
-#print('\n add mode table \n',add_mode)
 
-
-print('--------------------------------------------------------------------------------------') 
-
-
-
-print("\n","Set of input instructions modified","\n")
-input_set1=createLocctr(input_set, sicxe_inst)
-input_set2=fill_Taddress(input_set1)
-print(fill_Taddress(input_set1))
-
-print('Get sym-table\n')
-symtab=get_symtab(input_set1)
-print(symtab)
-print('to numeric data-------------------------------------------') 
-
-input_set3=fixTAddress(input_set2)
-print(input_set3)
-#data['column'].apply(lambda element: format(int(element), 'b'))
-
-input_set4=collectHTE(input_set3)
-print(input_set4)
 """
 input_set1=createLocctr(input_set,sic_inst,0)
+print('input_set 1 >>>>>>>>>>>')
+print(input_set1)
+#..................................
+symtab=get_symtab(input_set1)
+print('symtab >>>>>>>>>>>')
+print(symtab)
+#..................................
+input_set2=fill_Taddress(input_set1)
