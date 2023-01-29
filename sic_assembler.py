@@ -144,34 +144,65 @@ def convertToBinary(inst_set):
 
 def collectHTE(inst_set):
     
-    #create objcode column 
-    inst_set['OBJCODE']=inst_set.apply(lambda x:int(int((x.OPCODEVAL+x.TADD),2)>0)+int(x.OPCODE=='BASE') , axis=1)
-    
-    #concatenate bits in OBJCODE col
-    inst_set = inst_set.astype(str)
-    inst_set['OBJCODE']=inst_set.apply(lambda r :(r.OPCODEVAL+r.n+r.i+r.x+r.p+r.e+r.TADD)
-                                       if r.FORMAT in [3,4] else (r.OPCODEVAL+r.n+r.i+r.x+r.p+r.e+r.R1+r.R2) ,axis=1)
-    
-    #turn objcode into hexa
-    inst_set['OBJCODE']=inst_set.apply(lambda x: hex(int(x.OBJCODE,2)), axis=1)
     Hstr='H.XXXXXX.000000.000000'
     Tstr='T.000000.00.000000'
     Estr='E.000000'
     
-    return inst_set
+    # H record
+    Hlist=Hstr.split('.')
+    name=str(inst_set['REF'][0])
+    nameLen=len(name)
+    Hlist[1]=Hlist[1].replace(Hlist[1],name)
+    while len(name)<6:
+        name='X'+name
+    Hlist[1]=name
+    #.....
+    hstart=Hlist[2]
+    tstart=int(str(inst_set['LOCCTR'][0]),16)
+    hstart=hex(tstart) #need to handle the format of non 0 values
+    hstart=hstart.replace('0x','')
+    while len(hstart)<6:
+        hstart='0'+hstart
+    
+    Hlist[2]=hstart
+    #......   
+    hEnd=Hlist[3]
+    tab_len=len(inst_set['LOCCTR'])
+    hEnd=str(inst_set['LOCCTR'][tab_len-1])
+    hEnd=hEnd.replace('0x','')
+    while len(hEnd)<6:
+        hEnd='0'+hEnd
+    Hlist[3]=hEnd
+    
+    Hstr=':'.join(Hlist)
+    #T Record......................................
+    Tlist=Tstr.split('.')
+    
+    #E Record......................................
+    Elist=Estr.split('.')
+    
+    
+    return Hstr
 
 
-
+#..................................
 input_set1=createLocctr(input_set,sic_inst,0)
 print('input_set 1 >>>>>>>>>>>')
 print(input_set1)
+
 #..................................
 symtab=get_symtab(input_set1)
 print('symtab >>>>>>>>>>>')
 print(symtab)
+
 #..................................
 input_set2=fill_Taddress(input_set1)
 print(input_set2)
+
 #.................................
 input_set3=convertToBinary(input_set2)
 print(input_set3)
+
+# HTE record .......................
+hte=collectHTE(input_set3)
+print(hte)
