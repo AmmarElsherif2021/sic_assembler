@@ -137,56 +137,9 @@ def convertToBinary(inst_set):
     
     
     return inst_set    
-"""
+
 #.............................................................................................
-def fixTAddress(inst_set):
-    inst_set['OPCODEVAL']=inst_set.apply(lambda row: int(row.OPCODEVAL,16), axis = 1)
-    
-    #OPCODE in binary.......................................
-    #Discard the excessive right bits for formats 3,4 OPCODE
-    inst_set['OPCODEVAL']=inst_set.apply(lambda row: row.OPCODEVAL/4 if row.FORMAT in [3,4] and row.OPCODEVAL>63 else int(row.OPCODEVAL)/1, axis = 1)
-    
-    #OPCODE represented in 8 bits in formats 1,2 and in 6 bits for formats 3,4 OPCODE
-    inst_set['OPCODEVAL']=inst_set.apply(lambda row: format(row.OPCODEVAL,'08b') if row.FORMAT in [1,2] else format(int(row.OPCODEVAL),'06b'), axis = 1)
 
-    #calculate displacement -- Format 3
-    #  get PC column
-    inst_set['PC']=inst_set.apply(lambda x: 0, axis = 1)
-    for i in range(len(inst_set['LOCCTR'])-1):
-        inst_set['PC'][i]=inst_set['LOCCTR'][i+1]
-    
-    #get BASE LOCCTR
-    BASE_op=inst_set.loc[inst_set['OPCODE']=='BASE']['OPERAND'].values[0]
-    BASE_loc=inst_set.loc[inst_set['REF']==BASE_op]['LOCCTR'].values[0]
-    #print('>>>>>>>',BASE_op,'BASE_loc>>>>>>',BASE_loc)
-    
-    #  get displacement handle p,b flags bits:
-    inst_set['TADD']=inst_set.apply(lambda x: x.TADD - x.PC if x.FORMAT==3 else x.TADD, axis=1)
-    inst_set['p']=inst_set.apply(lambda row:1 if row.TADD<2047 and row.TADD>-2048 and row.FORMAT==3 else 0, axis = 1)    
-    inst_set['TADD']=inst_set.apply(lambda x: x.TADD + x.PC -BASE_loc if (x.FORMAT==3 and x.p==0) else x.TADD , axis=1)
-    inst_set['b']=inst_set.apply(lambda row: 1 if row.p==0 and row.FORMAT==3 else 0, axis = 1)
-    
-    #  handle negative displacements for binaries
-    inst_set['TADD']=inst_set.apply(lambda x: (-(x.TADD) + 4080) if (x.FORMAT==3 and x.TADD<0 and x.TADD>=-15) else x.TADD , axis=1)
-    inst_set['TADD']=inst_set.apply(lambda x: (-(x.TADD) + 3840) if (x.FORMAT==3 and x.TADD<0 and x.TADD>=-255) else x.TADD , axis=1)
-
-    
-   
-    #Represent Disp/Address in  bits -- format3 , format 4 
-    inst_set['TADD']=inst_set.apply(lambda row:format(row.TADD,'08b') if row.FORMAT==4 else format(row.TADD,'012b'), axis = 1)
-    
-    #Represent R1 and R2 -- format 2
-    inst_set['R1']=inst_set.apply(lambda row: format(row.R1,'04b'), axis = 1)
-    inst_set['R2']=inst_set.apply(lambda row: format(row.R2,'04b'), axis = 1)
-    
-    # delete excessive columns
-    col_del=['REF','OPERAND','signal','PC']
-    for col in col_del:
-        del inst_set[col]
-        
-    
-    return inst_set
-    
 
 
 def collectHTE(inst_set):
@@ -208,7 +161,7 @@ def collectHTE(inst_set):
     return inst_set
 
 
-"""
+
 input_set1=createLocctr(input_set,sic_inst,0)
 print('input_set 1 >>>>>>>>>>>')
 print(input_set1)
