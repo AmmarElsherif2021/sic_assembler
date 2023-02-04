@@ -177,12 +177,18 @@ def collectHTE(inst_set):
     Hstr=':'.join(Hlist)
     #T Record......................................
     Tlist=Tstr.split('.')
+    Tlist[1]=hstart
     
+    Tlength=hex(int(hEnd,16)-int(hstart,16)).replace('0x','')
+    Tlist[2]=Tlength #length in more than two hexa !
+    #you need to calculate T rec to the end of opcode and restart
+    
+    Tstr=':'.join(Tlist)
     #E Record......................................
     Elist=Estr.split('.')
     
     
-    return Hstr
+    return Hstr+'|'+Tstr
 
 
 #..................................
